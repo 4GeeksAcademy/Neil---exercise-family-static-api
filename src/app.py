@@ -38,6 +38,34 @@ def handle_hello():
     return jsonify(response_body), 200
 
 
+@app.route('/member/<int:id>', methods=['GET'])
+def get_member(id):
+    member = jackson_family.get_member(id)
+    if member is None:
+        return jsonify({"error": "Member not found"}), 404
+    return jsonify(member), 200
+
+
+@app.route('/member', methods=['POST'])
+def add_member():
+    member_data = request.get_json()
+    if not member_data or "first_name" not in member_data or "age" not in member_data or "lucky_numbers" not in member_data:
+        return jsonify({"error": "Missing required member data"}), 400
+    
+    jackson_family.add_member(member_data)
+    return jsonify({"msg": "Member added", "member": member_data}), 201
+
+
+@app.route('/member/<int:id>', methods=['DELETE'])
+def delete_member(id):
+    member = jackson_family.get_member(id)
+    if member is None:
+        return jsonify({"error": "Member not found"}), 404
+    
+    jackson_family.delete_member(id)
+    return jsonify({"done": True}), 200
+
+
 
 # This only runs if `$ python src/app.py` is executed
 if __name__ == '__main__':
